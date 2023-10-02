@@ -8,10 +8,7 @@ import java.util.Map;
 import java.util.UUID;
 
 public class DeezerAPIClient {
-    public static void main(String[] args) {
-        String appId = "YOUR_APP_ID";
-        String appSecret = "YOUR_APP_SECRET";
-        String myUrl = "YOUR_CALLBACK_URL";
+    public static void CallAPI(String appId, String appSecret, String myUrl) {
 
         // Start a session (not required in Java, as sessions are typically managed on the server-side)
         String state = UUID.randomUUID().toString(); // CSRF protection
@@ -24,7 +21,7 @@ public class DeezerAPIClient {
                     + "&redirect_uri=" + myUrl + "&perms=email,offline_access" + "&state=" + state;
 
             System.out.println("Redirecting to: " + dialogUrl);
-            // Implement redirection logic as needed in your application
+            // Implement redirection logic as needed in application
         }
 
         if (state.equals("received_state_from_deezer")) { // Replace with the actual received state
