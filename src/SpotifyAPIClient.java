@@ -7,11 +7,12 @@ import java.net.URL;
 import java.util.Scanner;
 
 public class SpotifyAPIClient {
-    static final String CLIENT_ID = "a7a02e00f9664daaa47b8517d1d8bbcb";
-    static final String CLIENT_SECRET = "CLIENT_SECRET_WHICH_WE_DONT_HAVE_YET";
-    static final String REDIRECT_URI = "http://localhost:8087/callback"; // Update with callback URL
+    static final String CLIENT_ID = "ad5775b4672c46ba9c118ace167e62ba";
+    static final String CLIENT_SECRET = "fd6631ea69f9425985187b2af81e4f79";
+    static final String REDIRECT_URI = "http://localhost:8888/callback"; // Update with callback URL
     static final String AUTH_URL = "https://accounts.spotify.com/authorize";
     static final String TOKEN_URL = "https://accounts.spotify.com/api/token";
+    static final String SCOPE = "user-read-private%20user-read-email";
 
     public static void main(String[] args) {
         // Step 1: Redirect the user to the authorization page
@@ -19,7 +20,7 @@ public class SpotifyAPIClient {
                 "?client_id=" + CLIENT_ID +
                 "&response_type=code" +
                 "&redirect_uri=" + REDIRECT_URI +
-                "&scope=user-read-private%20user-read-email";
+                "&scope=" + SCOPE;
 
         System.out.println("Open the following URL in your browser to log in and grant permissions:");
         System.out.println(authUrl);
@@ -57,8 +58,8 @@ public class SpotifyAPIClient {
             }
 
             // Parse and handle the JSON response to get the access token
-            String accessToken = parseAccessToken(tokenResponseBuilder.toString());
-            System.out.println("Access Token: " + accessToken);
+
+            // use Gson to parse tokenResponse and get access token
 
             tokenConn.disconnect();
         } catch (MalformedURLException e) {
