@@ -5,6 +5,7 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Scanner;
+import com.google.gson.Gson;
 
 public class SpotifyAPIClient {
     static final String CLIENT_ID = "ad5775b4672c46ba9c118ace167e62ba";
@@ -60,6 +61,10 @@ public class SpotifyAPIClient {
             // Parse and handle the JSON response to get the access token
 
             // use Gson to parse tokenResponse and get access token
+            Gson gson = new Gson();
+            AccessToken user_access_token = gson.fromJson(tokenResponseBuilder.toString(), AccessToken.class);
+
+            System.out.println("Access Token: " + user_access_token.getAccess_token());
 
             tokenConn.disconnect();
         } catch (MalformedURLException e) {
@@ -79,8 +84,3 @@ public class SpotifyAPIClient {
         return json.substring(startIndex, endIndex);
     }
 }
-
-
-
-
-
