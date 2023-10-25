@@ -11,7 +11,7 @@ import java.util.Scanner;
 public class SpotifyAPIClient {
     static final String CLIENT_ID = "ad5775b4672c46ba9c118ace167e62ba";
     static final String CLIENT_SECRET = "fd6631ea69f9425985187b2af81e4f79";
-    static final String REDIRECT_URI = "http://localhost:8888/callback"; // Update with callback URL
+    static final String REDIRECT_URI = "http://localhost:8888/callback";
     static final String AUTH_URL = "https://accounts.spotify.com/authorize";
     static final String TOKEN_URL = "https://accounts.spotify.com/api/token";
     static final String SCOPE = "user-read-private%20user-read-email";
@@ -37,6 +37,7 @@ public class SpotifyAPIClient {
 
     public static String GetToken(String authorizationCode) {
 
+        AccessToken user_access_token = null;
         try {
             URL tokenUrl = new URL(TOKEN_URL);
             HttpURLConnection tokenConn = (HttpURLConnection) tokenUrl.openConnection();
@@ -67,7 +68,7 @@ public class SpotifyAPIClient {
 
             // use Gson to parse tokenResponse and get access token
             Gson gson = new Gson();
-            AccessToken user_access_token = gson.fromJson(tokenResponseBuilder.toString(), AccessToken.class);
+            user_access_token = gson.fromJson(tokenResponseBuilder.toString(), AccessToken.class);
 
             System.out.println("Access Token: " + user_access_token.getAccess_token());
 
@@ -77,7 +78,7 @@ public class SpotifyAPIClient {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return null;
+        return user_access_token.getAccess_token();
     }
 
     private static String parseAccessToken(String json) {
