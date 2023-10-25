@@ -1,3 +1,5 @@
+import com.google.gson.Gson;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -5,7 +7,6 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Scanner;
-import com.google.gson.Gson;
 
 public class SpotifyAPIClient {
     static final String CLIENT_ID = "ad5775b4672c46ba9c118ace167e62ba";
@@ -15,7 +16,7 @@ public class SpotifyAPIClient {
     static final String TOKEN_URL = "https://accounts.spotify.com/api/token";
     static final String SCOPE = "user-read-private%20user-read-email";
 
-    public static void main(String[] args) {
+    public static String GetAuthorizationCode() {
         // Step 1: Redirect the user to the authorization page
         String authUrl = AUTH_URL +
                 "?client_id=" + CLIENT_ID +
@@ -31,7 +32,11 @@ public class SpotifyAPIClient {
         Scanner scanner = new Scanner(System.in);
         String authorizationCode = scanner.nextLine();
 
-        // Step 2: Exchange the authorization code for an access token
+        return authorizationCode;
+    }
+
+    public static String GetToken(String authorizationCode) {
+
         try {
             URL tokenUrl = new URL(TOKEN_URL);
             HttpURLConnection tokenConn = (HttpURLConnection) tokenUrl.openConnection();
@@ -72,6 +77,7 @@ public class SpotifyAPIClient {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        return null;
     }
 
     private static String parseAccessToken(String json) {
