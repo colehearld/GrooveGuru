@@ -7,7 +7,6 @@ public class RetrieveProfileData {
     public static void GetData() {
         try {
             String accessToken = SpotifyAPIClient.GetToken(SpotifyAPIClient.GetAuthorizationCode());
-            ;
 
             String apiUrl = "https://api.spotify.com/v1/me/playlists"; //Just for testing
 

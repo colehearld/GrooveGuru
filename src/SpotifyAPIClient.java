@@ -8,10 +8,11 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Scanner;
 
+
 public class SpotifyAPIClient {
-    static final String CLIENT_ID = "ad5775b4672c46ba9c118ace167e62ba";
-    static final String CLIENT_SECRET = "fd6631ea69f9425985187b2af81e4f79";
-    static final String REDIRECT_URI = "http://localhost:8888/callback";
+    static final String CLIENT_ID = "a7a02e00f9664daaa47b8517d1d8bbcb";
+    static final String CLIENT_SECRET = "83b3b5cbe9e54e7a9c19f03dba86039d";
+    static final String REDIRECT_URI = "https://localhost:8087/callback";
     static final String AUTH_URL = "https://accounts.spotify.com/authorize";
     static final String TOKEN_URL = "https://accounts.spotify.com/api/token";
     static final String SCOPE = "user-read-private%20user-read-email";
@@ -27,17 +28,18 @@ public class SpotifyAPIClient {
         System.out.println("Open the following URL in your browser to log in and grant permissions:");
         System.out.println(authUrl);
 
-        // After the user grants permissions, they will be redirected back to the callback URL
+        //After the user grants permissions, they will be redirected back to the callback URL
         System.out.print("Enter the authorization code from the URL: ");
         Scanner scanner = new Scanner(System.in);
         String authorizationCode = scanner.nextLine();
+
+        //String authorizationCode = URLScraper(authUrl);
 
         return authorizationCode;
     }
 
     public static String GetToken(String authorizationCode) {
-
-        AccessToken user_access_token = null;
+        AccessToken userAccessToken = null;
         try {
             URL tokenUrl = new URL(TOKEN_URL);
             HttpURLConnection tokenConn = (HttpURLConnection) tokenUrl.openConnection();
@@ -64,13 +66,14 @@ public class SpotifyAPIClient {
                 tokenResponseBuilder.append(tokenResponse);
             }
 
-            // Parse and handle the JSON response to get the access token
+            // Parse and handle the JSON response to get the access token and refresh token
 
-            // use Gson to parse tokenResponse and get access token
+            // use Gson to parse tokenResponse and get access token and refresh token
             Gson gson = new Gson();
-            user_access_token = gson.fromJson(tokenResponseBuilder.toString(), AccessToken.class);
+            userAccessToken = gson.fromJson(tokenResponseBuilder.toString(), AccessToken.class);
 
-            System.out.println("Access Token: " + user_access_token.getAccess_token());
+            System.out.println("Access Token: " + userAccessToken.getAccess_token());
+            System.out.println("Refresh Token: " + userAccessToken.getRefresh_token());
 
             tokenConn.disconnect();
         } catch (MalformedURLException e) {
@@ -78,16 +81,6 @@ public class SpotifyAPIClient {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return user_access_token.getAccess_token();
-    }
-
-    private static String parseAccessToken(String json) {
-        // Parse the JSON response to extract the access token
-        // This parsing logic depends on the JSON structure of the token response
-        // We may want to use a JSON parsing library like Jackson or Gson for production code
-        // Currently, we assume a simple JSON structure like {"access_token": "TOKEN_VALUE"}
-        int startIndex = json.indexOf("\"access_token\":\"") + 15;
-        int endIndex = json.indexOf("\"", startIndex);
-        return json.substring(startIndex, endIndex);
+        return userAccessToken.getAccess_token();
     }
 }
