@@ -4,10 +4,7 @@ import json
 import pandas as pd
 import numpy as np
 from sklearn.neighbors import NearestNeighbors
-
-client_id = "a7a02e00f9664daaa47b8517d1d8bbcb"
-client_secret = "83b3b5cbe9e54e7a9c19f03dba86039d"
-redirect_uri = "https://localhost:8087"
+from credentials import client_id, client_secret, redirect_uri
 
 sp_login = spotipy.Spotify(
     auth_manager=SpotifyOAuth(client_id=client_id, client_secret=client_secret, redirect_uri=redirect_uri,
@@ -66,19 +63,20 @@ def get_recommendations(user_data_path):
     user_features = [track['audio_features'] for track in user_data]
     Y = np.array([[track[feature] for feature in spotify_features] for track in user_features])
 
-    # Initialize the NearestNeighbors model for the dataset 'X'
-    nbrs = NearestNeighbors(n_neighbors=2, algorithm='ball_tree').fit(X)
+    # Calculate the mean of the user's listening history
+    mean_features = np.mean(Y, axis=0, keepdims=True)
 
-    # Find the nearest neighbors in X for items in Y
-    distances, indices = nbrs.kneighbors(Y)
+    # Initialize the NearestNeighbors model for the dataset 'X'
+    nbrs = NearestNeighbors(n_neighbors=5, algorithm='ball_tree').fit(X)
+
+    # Find the nearest neighbor in X for the mean features
+    distances, indices = nbrs.kneighbors(mean_features)
 
     # Print the names of the closest indices
-    recommended_songs = []
-    for i, neighbors_indices in enumerate(indices):
-        for neighbor_index in neighbors_indices:
-             recommended_songs.append(spotify_data.iloc[neighbor_index]['id'])
+    recommended_songs = [spotify_data.iloc[neighbor_index]['id'] for neighbor_index in indices.flatten()]
 
     return recommended_songs
+
 
 
 if __name__ == "__main__":

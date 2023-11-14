@@ -1,0 +1,23 @@
+# Ignore system files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Ignore environment folders
+venv/
+env/
+
+# Ignore user-specific files
+.DS_Store
+Thumbs.db
+
+# Ignore Spotify API credentials
+credentials.py
+
+# Ignore user-specific data
+userdata.json
+
+# Ignore project-specific files
+*.log
+*.sqlite3
