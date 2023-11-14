@@ -27,11 +27,12 @@ def get_recent_tracks(sp, n_tracks):
 
     return tracks, dates
 
-# Function currently does not work, kinda.
-def get_tracks(track_id):
-    sp = spotipy.Spotify()
+
+def get_tracks(sp, track_id):
     track = sp.track(track_id)
     return track
+
+
 def get_tracks_id(tracks):
     track_ids = [item['track']['id'] for item in tracks if item['track'] and 'id' in item['track']]
     return track_ids
@@ -101,16 +102,10 @@ if __name__ == "__main__":
     with open(userdata_path, "w") as json_file:
         json.dump(song_data_list, json_file, indent=2)
 
-    print("Track IDs:", all_tracks)
-    print("Dates Played:", dates_played)
-    print("Audio Features:", song_data_list)
-
     userdata = pd.read_json(userdata_path)
 
     recommended_songs = get_recommendations(userdata_path)
 
-    print("Recommended Songs:")
     for song_id in recommended_songs:
-        print(song_id)
-
+        song_data = print(get_tracks(sp_login, song_id.__str__()))
 
