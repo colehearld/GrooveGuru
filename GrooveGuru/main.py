@@ -45,11 +45,13 @@ def get_audio_features(sp, track_ids):
     audio_features = sp.audio_features(tracks=track_ids)
     return audio_features
 
+
+# BIG OL REGEXP
 def filter_recommendation(song_item):
-    pattern = pattern = (r"'spotify':\s*'(?P<spotify>.*?)'.*?'name':\s*'(?P<name>.*?)'.*?'uri':\s*'("
+    pattern = (r"'spotify':\s*'(?P<spotify>.*?)'.*?'name':\s*'(?P<name>.*?)'.*?'uri':\s*'("
                          r"?P<uri>.*?)'.*?'images':\s*\[(?P<images>.*?)\].*?'release_date':\s*'(?P<release_date>.*?)'")
 
-    # Use re.search to find the first match in the string
+    # find the first match in the string
     match = re.search(pattern, song_item)
 
     # Accessing the named groups in the match object
