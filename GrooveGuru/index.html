@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recommended Songs</title>
+</head>
+<body>
+    <h1>Recommended Songs</h1>
+    <ul>
+        {% for song in recommended_songs %}
+            <li>{{ song['name'] }} by {{ song['artists'][0]['name'] }}</li>
+        {% endfor %}
+    </ul>
+</body>
+</html>
