@@ -1,3 +1,4 @@
+import re
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth
 import json
@@ -44,8 +45,27 @@ def get_audio_features(sp, track_ids):
     audio_features = sp.audio_features(tracks=track_ids)
     return audio_features
 
+def filter_recommendation(song_item):
+    pattern = pattern = (r"'spotify':\s*'(?P<spotify>.*?)'.*?'name':\s*'(?P<name>.*?)'.*?'uri':\s*'("
+                         r"?P<uri>.*?)'.*?'images':\s*\[(?P<images>.*?)\].*?'release_date':\s*'(?P<release_date>.*?)'")
 
-def get_recommendations(user_data_path):
+    # Use re.search to find the first match in the string
+    match = re.search(pattern, song_item)
+
+    # Accessing the named groups in the match object
+    if match:
+        spotify = match.group('spotify')
+        name = match.group('name')
+        uri = match.group('uri')
+        images = match.group('images')
+        release_date = match.group('release_date')
+
+    song_item = f"Spotify: {spotify}" + "\n" + f"Name: {name}" + "\n" + f"URI: {uri}" + "\n" + f"Images: {images}" + "\n" + f"Release Date: {release_date}"
+
+    return song_item
+
+
+def get_recommendations(sp, user_data_path):
     spotify_data_filepath = 'C:/Users/hearl/Downloads/Spotify 600/tracks.csv' # CHANGE TO YOUR PATH
     spotify_data = pd.read_csv(spotify_data_filepath)
 
@@ -73,15 +93,19 @@ def get_recommendations(user_data_path):
     distances, indices = nbrs.kneighbors(mean_features)
 
     # Print the names of the closest indices
-    recommended_songs = [spotify_data.iloc[neighbor_index]['id'] for neighbor_index in indices.flatten()]
+    recommended_songs_id = [spotify_data.iloc[neighbor_index]['id'] for neighbor_index in indices.flatten()]
 
-    return recommended_songs
+    recommendations = []
+    for id in recommended_songs_id:
+        rec_song_data = get_tracks(sp, id.__str__())
+        rec_song_data_str = rec_song_data.__str__()
+        filtered = filter_recommendation(rec_song_data_str)
+        recommendations.append(filtered)
 
+    return recommendations
 
-
-if __name__ == "__main__":
+def init_userdata():
     all_tracks, dates_played = get_recent_tracks(sp_login, 20)
-
     song_data_list = []
 
     for track_id in all_tracks:
@@ -96,14 +120,13 @@ if __name__ == "__main__":
 
     userdata_path = "userdata.json"
 
-    # Convert the list of JSON objects to a JSON file
     with open(userdata_path, "w") as json_file:
         json.dump(song_data_list, json_file, indent=2)
 
-    userdata = pd.read_json(userdata_path)
+    return userdata_path
 
-    recommended_songs = get_recommendations(userdata_path)
 
-    for song_id in recommended_songs:
-        song_data = print(get_tracks(sp_login, song_id.__str__()))
+if __name__ == "__main__":
+    print(get_recommendations(sp_login, init_userdata()))
+
 
