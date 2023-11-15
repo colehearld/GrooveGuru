@@ -49,7 +49,7 @@ def get_audio_features(sp, track_ids):
 # BIG OL REGEXP
 def filter_recommendation(song_item):
     pattern = (r"'spotify':\s*'(?P<spotify>.*?)'.*?'name':\s*'(?P<name>.*?)'.*?'uri':\s*'("
-                         r"?P<uri>.*?)'.*?'images':\s*\[(?P<images>.*?)\].*?'release_date':\s*'(?P<release_date>.*?)'")
+               r"?P<uri>.*?)'.*?'images':\s*\[(?P<images>.*?)\].*?'release_date':\s*'(?P<release_date>.*?)'")
 
     # find the first match in the string
     match = re.search(pattern, song_item)
@@ -62,13 +62,13 @@ def filter_recommendation(song_item):
         images = match.group('images')
         release_date = match.group('release_date')
 
-    song_item = f"Spotify: {spotify}" + "\n" + f"Name: {name}" + "\n" + f"URI: {uri}" + "\n" + f"Images: {images}" + "\n" + f"Release Date: {release_date}"
+    song_item = f"Spotify: {spotify} " + f"Name: {name} " + f"URI: {uri} " + f"Images: {images} " + f"Release Date: {release_date}"
 
     return song_item
 
 
 def get_recommendations(sp, user_data_path):
-    spotify_data_filepath = 'C:/Users/hearl/Downloads/Spotify 600/tracks.csv' # CHANGE TO YOUR PATH
+    spotify_data_filepath = 'C:/Users/hearl/Downloads/Spotify 600/tracks.csv'  # CHANGE TO YOUR PATH
     spotify_data = pd.read_csv(spotify_data_filepath)
 
     spotify_data = spotify_data.dropna(axis=0)
@@ -106,6 +106,7 @@ def get_recommendations(sp, user_data_path):
 
     return recommendations
 
+
 def init_userdata():
     all_tracks, dates_played = get_recent_tracks(sp_login, 20)
     song_data_list = []
@@ -130,5 +131,3 @@ def init_userdata():
 
 if __name__ == "__main__":
     print(get_recommendations(sp_login, init_userdata()))
-
-
