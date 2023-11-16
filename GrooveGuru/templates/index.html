@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Music Recommendations</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+
+        .recommendation {
+            margin-bottom: 20px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+        }
+
+        .artist-image {
+            max-width: 100%;
+            height: auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>Music Recommendations</h1>
+    <div id="recommendations-container"></div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Fetch recommendations from the Flask backend
+            fetch('/get_recs')
+                .then(response => response.json())
+                .then(data => {
+                    const recommendationsContainer = document.getElementById('recommendations-container');
+
+                    // Loop through the data and create recommendation elements
+                    data.forEach(item => {
+                        const recommendationDiv = document.createElement('div');
+                        recommendationDiv.className = 'recommendation';
+
+                        // Extracting information from the data
+                        const artistName = item.match(/Name: ([^ ]*)/)[1];
+                        const releaseDate = item.match(/Release Date: ([^"]*)/)[1];
+                        const imageUrl = item.match(/Images: \{[^}]*url': '([^']*)/)[1];
+
+                        // Creating the HTML content for each recommendation
+                        recommendationDiv.innerHTML = `
+                            <strong>${artistName}</strong> (${releaseDate})
+                            <br>
+                            <img class="artist-image" src="${imageUrl}" alt="${artistName}">
+                        `;
+
+                        // Append the recommendation to the container
+                        recommendationsContainer.appendChild(recommendationDiv);
+                    });
+                })
+                .catch(error => console.error('Error fetching recommendations:', error));
+        });
+    </script>
+</body>
+</html>
+
+
+
