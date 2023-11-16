@@ -6,6 +6,7 @@ import pandas as pd
 import numpy as np
 from sklearn.neighbors import NearestNeighbors
 from credentials import client_id, client_secret, redirect_uri
+import sqlite3
 
 sp_login = spotipy.Spotify(
     auth_manager=SpotifyOAuth(client_id=client_id, client_secret=client_secret, redirect_uri=redirect_uri,
@@ -77,13 +78,19 @@ def get_recommendations(sp, user_data_path):
                         'speechiness', 'tempo', 'valence', 'time_signature', 'key', 'mode']
     X = spotify_data[spotify_features].values
 
-    # Load user data from JSON file
-    with open(user_data_path) as f:
-        user_data = json.load(f)
+    # Connect to the SQLite database
+    conn = sqlite3.connect(user_data_path)
+    cursor = conn.cursor()
+
+    # Read user data from the 'tracks' table in the SQLite database
+    cursor.execute('SELECT audio_features FROM tracks')
+    user_data = cursor.fetchall()
+
+    # Convert the fetched data to a list of dictionaries
+    user_data = [{'audio_features': json.loads(row[0])} for row in user_data]
 
     # Extract audio features from user data
-    user_features = [track['audio_features'] for track in user_data]
-    Y = np.array([[track[feature] for feature in spotify_features] for track in user_features])
+    Y = np.array([[track['audio_features'][feature] for feature in spotify_features] for track in user_data])
 
     # Calculate the mean of the user's listening history
     mean_features = np.mean(Y, axis=0, keepdims=True)
@@ -99,10 +106,12 @@ def get_recommendations(sp, user_data_path):
 
     recommendations = []
     for id in recommended_songs_id:
-        rec_song_data = get_tracks(sp, id.__str__())
+        rec_song_data = get_tracks(sp, str(id))
         rec_song_data_str = rec_song_data.__str__()
         filtered = filter_recommendation(rec_song_data_str)
         recommendations.append(filtered)
+
+    conn.close()
 
     return recommendations
 
@@ -111,8 +120,25 @@ def init_userdata():
     all_tracks, dates_played = get_recent_tracks(sp_login, 20)
     song_data_list = []
 
+    db_path = "userdata.db"
+
+    conn = sqlite3.connect(db_path)
+    cursor = conn.cursor()
+
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS tracks (
+            id TEXT PRIMARY KEY,
+            audio_features TEXT
+        )
+    ''')
+
     for track_id in all_tracks:
         audio_features = get_audio_features(sp_login, [track_id])[0]
+
+        cursor.execute('''
+            INSERT OR IGNORE INTO tracks (id, audio_features)
+            VALUES (?, ?)
+        ''', (track_id, json.dumps(audio_features)))
 
         song_data = {
             "id": track_id,
@@ -121,12 +147,10 @@ def init_userdata():
 
         song_data_list.append(song_data)
 
-    userdata_path = "userdata.json"
+    conn.commit()
+    conn.close()
 
-    with open(userdata_path, "w") as json_file:
-        json.dump(song_data_list, json_file, indent=2)
-
-    return userdata_path
+    return db_path
 
 
 if __name__ == "__main__":

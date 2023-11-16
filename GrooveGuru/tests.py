@@ -2,7 +2,7 @@ import unittest
 from unittest.mock import Mock, patch
 import pandas as pd
 import numpy as np
-import main
+import engine
 import json
 
 
@@ -61,7 +61,7 @@ class TestSpotifyFunctions(unittest.TestCase):
         self.assertEqual(audio_features, [{'acousticness': 0.5, 'danceability': 0.7}])
 
 
-    # TODO: Write test for get_recommendations
+    # TODO: Write test for get_recommendations, imit_userdata, filter_recs
 
 
 if __name__ == '__main__':
