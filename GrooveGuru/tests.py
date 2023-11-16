@@ -14,7 +14,7 @@ class TestSpotifyFunctions(unittest.TestCase):
         sp_instance.current_user_recently_played.return_value = {'items': [{'track': {'id': '123'}}, {'track': {'id': '456'}}], 'next': None}
 
         # Call the function to test
-        tracks, dates = main.get_recent_tracks(sp_instance, 2)
+        tracks, dates = engine.get_recent_tracks(sp_instance, 2)
 
         # Perform assertions
         self.assertEqual(tracks, ['123', '456'])
@@ -27,7 +27,7 @@ class TestSpotifyFunctions(unittest.TestCase):
         sp_instance.track.return_value = {'name': 'Test Track'}
 
         # Call the function to test
-        track_info = main.get_tracks(sp_instance, '123')
+        track_info = engine.get_tracks(sp_instance, '123')
 
         # Perform assertions
         self.assertEqual(track_info['name'], 'Test Track')
@@ -35,7 +35,7 @@ class TestSpotifyFunctions(unittest.TestCase):
     def test_get_tracks_id(self):
         # Test with sample data
         tracks = [{'track': {'id': '123'}}, {'track': {'id': '456'}}]
-        track_ids = main.get_tracks_id(tracks)
+        track_ids = engine.get_tracks_id(tracks)
 
         # Perform assertions
         self.assertEqual(track_ids, ['123', '456'])
@@ -43,7 +43,7 @@ class TestSpotifyFunctions(unittest.TestCase):
     def test_get_date_played(self):
         # Test with sample data
         tracks = [{'played_at': '2022-01-01'}, {'played_at': '2022-01-02'}]
-        dates_played = main.get_date_played(tracks)
+        dates_played = engine.get_date_played(tracks)
 
         # Perform assertions
         self.assertEqual(dates_played, ['2022-01-01', '2022-01-02'])
@@ -55,7 +55,7 @@ class TestSpotifyFunctions(unittest.TestCase):
         sp_instance.audio_features.return_value = [{'acousticness': 0.5, 'danceability': 0.7}]
 
         # Call the function to test
-        audio_features = main.get_audio_features(sp_instance, ['123'])
+        audio_features = engine.get_audio_features(sp_instance, ['123'])
 
         # Perform assertions
         self.assertEqual(audio_features, [{'acousticness': 0.5, 'danceability': 0.7}])
