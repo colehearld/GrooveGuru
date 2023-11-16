@@ -47,27 +47,6 @@ def get_audio_features(sp, track_ids):
     return audio_features
 
 
-# BIG OL REGEXP
-def filter_recommendation(song_item):
-    pattern = (r"'spotify':\s*'(?P<spotify>.*?)'.*?'name':\s*'(?P<name>.*?)'.*?'uri':\s*'("
-               r"?P<uri>.*?)'.*?'images':\s*\[(?P<images>.*?)\].*?'release_date':\s*'(?P<release_date>.*?)'")
-
-    # find the first match in the string
-    match = re.search(pattern, song_item)
-
-    # Accessing the named groups in the match object
-    if match:
-        spotify = match.group('spotify')
-        name = match.group('name')
-        uri = match.group('uri')
-        images = match.group('images')
-        release_date = match.group('release_date')
-
-    song_item = f"Spotify: {spotify} " + f"Name: {name} " + f"URI: {uri} " + f"Images: {images} " + f"Release Date: {release_date}"
-
-    return song_item
-
-
 def get_recommendations(sp, user_data_path):
     spotify_data_filepath = 'C:/Users/hearl/Downloads/Spotify 600/tracks.csv'  # CHANGE TO YOUR PATH
     spotify_data = pd.read_csv(spotify_data_filepath)
@@ -102,14 +81,15 @@ def get_recommendations(sp, user_data_path):
     distances, indices = nbrs.kneighbors(mean_features)
 
     # Print the names of the closest indices
-    recommended_songs_id = [spotify_data.iloc[neighbor_index]['id'] for neighbor_index in indices.flatten()]
+    recommended_songs_id_name = [(spotify_data.iloc[neighbor_index]['id'], spotify_data.iloc[neighbor_index]['name'])
+                                 for neighbor_index in indices.flatten()]
 
     recommendations = []
-    for id in recommended_songs_id:
+    for id, _ in recommended_songs_id_name:
         rec_song_data = get_tracks(sp, str(id))
         rec_song_data_str = rec_song_data.__str__()
-        filtered = filter_recommendation(rec_song_data_str)
-        recommendations.append(filtered)
+        # filtered = filter_recommendation(rec_song_data_str)
+        recommendations.append(rec_song_data_str)
 
     conn.close()
 
