@@ -12,6 +12,9 @@ sp_login = spotipy.Spotify(
     auth_manager=SpotifyOAuth(client_id=client_id, client_secret=client_secret, redirect_uri=redirect_uri,
                               scope='user-read-recently-played'))
 
+spotify_data_path = 'C:/Users/hearl/Downloads/Spotify 600/tracks.csv'  # CHANGE TO YOUR PATH
+userdata_path = "userdata.db"
+
 
 def get_recent_tracks(sp, n_tracks):
     results = sp.current_user_recently_played()
@@ -47,9 +50,8 @@ def get_audio_features(sp, track_ids):
     return audio_features
 
 
-def get_recommendations(sp, user_data_path):
-    spotify_data_filepath = 'C:/Users/hearl/Downloads/Spotify 600/tracks.csv'  # CHANGE TO YOUR PATH
-    spotify_data = pd.read_csv(spotify_data_filepath)
+def get_recommendations(sp, user_data_path, spotify_data_path):
+    spotify_data = pd.read_csv(spotify_data_path)
 
     spotify_data = spotify_data.dropna(axis=0)
 
@@ -96,13 +98,11 @@ def get_recommendations(sp, user_data_path):
     return recommendations
 
 
-def init_userdata():
+def init_userdata(userdata_path):
     all_tracks, dates_played = get_recent_tracks(sp_login, 20)
     song_data_list = []
 
-    db_path = "userdata.db"
-
-    conn = sqlite3.connect(db_path)
+    conn = sqlite3.connect(userdata_path)
     cursor = conn.cursor()
 
     cursor.execute('''
@@ -130,7 +130,7 @@ def init_userdata():
     conn.commit()
     conn.close()
 
-    return db_path
+    return userdata_path
 
 
 if __name__ == "__main__":

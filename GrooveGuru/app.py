@@ -1,30 +1,24 @@
 import ast
 
 from flask import Flask, render_template
-
-from engine import get_recommendations, init_userdata
-import spotipy
-from spotipy.oauth2 import SpotifyOAuth
-from credentials import client_id, client_secret, redirect_uri
-
-sp_login = spotipy.Spotify(
-    auth_manager=SpotifyOAuth(client_id=client_id, client_secret=client_secret, redirect_uri=redirect_uri,
-                              scope='user-read-recently-played'))
+from flask_cors import CORS  # Import CORS
+from engine import get_recommendations, init_userdata, sp_login, userdata_path, spotify_data_path
 
 app = Flask(__name__)
+CORS(app)
 
 @app.route('/')
 def index():
     song_data = fetch_data()
 
-    # Process the result
     result = process_data(song_data)
 
-    # Render HTML
     return render_template('index.html', songs=result)
 
+
 def fetch_data():
-    return get_recommendations(sp_login, init_userdata())
+    return get_recommendations(sp_login, init_userdata(userdata_path), spotify_data_path)
+
 
 def process_data(data_list):
     # Parse the strings into dictionaries
@@ -49,6 +43,7 @@ def process_data(data_list):
         extracted_data.append(song_info)
 
     return extracted_data
+
 
 if __name__ == '__main__':
     app.run(debug=True)
