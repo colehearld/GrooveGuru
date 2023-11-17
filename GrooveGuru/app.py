@@ -1,7 +1,7 @@
 import ast
 
 from flask import Flask, render_template
-from flask_cors import CORS  # Import CORS
+from flask_cors import CORS
 from engine import get_recommendations, init_userdata, sp_login, userdata_path, spotify_data_path
 
 app = Flask(__name__)
@@ -33,11 +33,14 @@ def process_data(data_list):
         images = album_info.get('images', [])
         image_url = images[0]['url'] if images else None
 
+        external_urls = item.get('external_urls', {})
+
         song_info = {
             'photo': image_url,
             'name': artists_info.get('name', ''),
             'song_name': item.get('song_name', ''),
-            'date': album_info.get('release_date', '')
+            'date': album_info.get('release_date', ''),
+            'song_link': external_urls.get('spotify', '')
         }
 
         extracted_data.append(song_info)
