@@ -12,7 +12,7 @@ sp_login = spotipy.Spotify(
     auth_manager=SpotifyOAuth(client_id=client_id, client_secret=client_secret, redirect_uri=redirect_uri,
                               scope='user-read-recently-played'))
 
-spotify_data_path = 'C:/Users/hearl/Downloads/Spotify 600/tracks.csv'  # CHANGE TO YOUR PATH
+spotify_data_path = 'tracks.csv'  # CHANGE TO YOUR PATH
 userdata_path = "userdata.db"
 
 
