@@ -14,6 +14,7 @@ Thumbs.db
 
 # Ignore Spotify API credentials
 credentials.py
+.cache
 
 # Ignore user-specific data
 userdata.json
