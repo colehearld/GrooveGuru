@@ -2,7 +2,7 @@ import ast
 
 from flask import Flask, render_template
 from flask_cors import CORS
-from engine import get_recommendations, init_userdata, sp_login, userdata_path, spotify_data_path
+from engine import get_recommendations, init_userdata, sp_login, spotify_data_path
 
 app = Flask(__name__)
 CORS(app)
@@ -17,7 +17,7 @@ def index():
 
 
 def fetch_data():
-    return get_recommendations(sp_login, init_userdata(userdata_path), spotify_data_path)
+    return get_recommendations(sp_login, init_userdata(), spotify_data_path)
 
 
 def process_data(data_list):

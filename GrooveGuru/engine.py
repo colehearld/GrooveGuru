@@ -12,8 +12,7 @@ sp_login = spotipy.Spotify(
     auth_manager=SpotifyOAuth(client_id=client_id, client_secret=client_secret, redirect_uri=redirect_uri,
                               scope='user-read-recently-played'))
 
-spotify_data_path = 'tracks.csv'  # CHANGE TO YOUR PATH
-userdata_path = "userdata.db"
+spotify_data_path = 'C:/Users/hearl/Downloads/Spotify 600/tracks.csv'  # CHANGE TO YOUR PATH
 
 
 def get_recent_tracks(sp, n_tracks):
@@ -98,7 +97,8 @@ def get_recommendations(sp, user_data_path, spotify_data_path):
     return recommendations
 
 
-def init_userdata(userdata_path):
+def init_userdata():
+    userdata_path = "userdata.db"
     all_tracks, dates_played = get_recent_tracks(sp_login, 20)
     song_data_list = []
 
