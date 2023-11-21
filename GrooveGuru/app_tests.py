@@ -24,7 +24,6 @@ class TestFlaskApp(unittest.TestCase):
             "'date': '2022-01-01'}"
         ]
 
-        # Call the actual function
         result = process_data(data_list)
 
         # Assert the processed data
