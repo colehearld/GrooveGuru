@@ -4,14 +4,15 @@ import pandas as pd
 import numpy as np
 import engine
 import json
-from engine import get_recommendations, sp_login
+from engine import get_song_data, sp_login
 
 
 class TestSpotifyFunctions(unittest.TestCase):
     @patch('spotipy.Spotify')
     def test_get_recent_tracks(self, mock_spotify):
         sp_instance = mock_spotify.return_value
-        sp_instance.current_user_recently_played.return_value = {'items': [{'track': {'id': '123'}}, {'track': {'id': '456'}}], 'next': None}
+        sp_instance.current_user_recently_played.return_value = {
+            'items': [{'track': {'id': '123'}}, {'track': {'id': '456'}}], 'next': None}
 
         tracks, dates = engine.get_recent_tracks(sp_instance, 2)
 
@@ -33,12 +34,6 @@ class TestSpotifyFunctions(unittest.TestCase):
 
         self.assertEqual(track_ids, ['123', '456'])
 
-    def test_get_date_played(self):
-        tracks = [{'played_at': '2022-01-01'}, {'played_at': '2022-01-02'}]
-        dates_played = engine.get_date_played(tracks)
-
-        self.assertEqual(dates_played, ['2022-01-01', '2022-01-02'])
-
     @patch('spotipy.Spotify')
     def test_get_audio_features(self, mock_spotify):
         sp_instance = mock_spotify.return_value
@@ -48,8 +43,8 @@ class TestSpotifyFunctions(unittest.TestCase):
 
         self.assertEqual(audio_features, [{'acousticness': 0.5, 'danceability': 0.7}])
 
-    def test_get_recommendations(self):
-        recommendations = get_recommendations(sp_login, "testdata/userdata_test.db", "testdata/recommendation_test.csv")
+    def test_get_song_data(self):
+        recommendations = get_song_data(sp_login, "testdata/userdata_test.db", "testdata/recommendation_test.csv")
         my_str = ("{'album': {'album_type': 'album', 'artists': [{'external_urls': {'spotify': "
                   "'https://open.spotify.com/artist/3BiJGZsyX9sJchTqcSA7Su'}, 'href': "
                   "'https://api.spotify.com/v1/artists/3BiJGZsyX9sJchTqcSA7Su', 'id': '3BiJGZsyX9sJchTqcSA7Su', "
@@ -97,9 +92,13 @@ class TestSpotifyFunctions(unittest.TestCase):
                   "'is_local': False, 'name': 'Ave Maria', 'popularity': 4, 'preview_url': "
                   "'https://p.scdn.co/mp3-preview/0fd4e2b58646e6d11164aa7daff514d36c12966e?cid"
                   "=a7a02e00f9664daaa47b8517d1d8bbcb', 'track_number': 11, 'type': 'track', "
-                  "'uri': 'spotify:track:0BRXJHRNGQ3W4v9frnSfhu'}")
-        print(recommendations)
+                  "'uri': 'spotify:track:0BRXJHRNGQ3W4v9frnSfhu', 'song_name': 'Ave Maria'}")
         assert my_str in recommendations, f"{my_str} not found in the list {recommendations}"
+
+    def test_load_data(self):
+        data = engine.load_data("testdata/recommendation_test.csv")
+        checked_item = "35iwgR4jXetI318WEWsa1Q"
+        assert checked_item in data['id'].values, f"{checked_item} not found in DataFrame."
 
 
 if __name__ == '__main__':
