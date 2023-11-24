@@ -58,6 +58,7 @@ def load_data(sdp):
 
 
 def get_rec_indices(udp, sdp):
+    
     spotify_data = load_data(sdp)
 
     spotify_features = ['acousticness', 'danceability', 'energy', 'instrumentalness', 'liveness', 'loudness',
@@ -145,7 +146,7 @@ def init_userdata(udp):
 
 
 if __name__ == "__main__":
-    print(get_song_data(sp_login, userdata_path, spotify_data_path))
+    print(get_song_data(sp_login, init_userdata(userdata_path), spotify_data_path))
 
 
 
