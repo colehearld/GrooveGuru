@@ -1,7 +1,7 @@
 from flask import Flask, render_template
 from flask_cors import CORS
 
-from flask_plug import fetch_and_process_data
+from data_processor import fetch_and_process_data
 
 app = Flask(__name__)
 CORS(app)
