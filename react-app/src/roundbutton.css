@@ -19,7 +19,7 @@
   }
   50% {
     transform: translateY(-10px);
-    background-color: #d8cc5b;
+    background-color: #cfbc4e;
   }
 }
 
@@ -59,7 +59,7 @@
   height: 110px;
   border-radius: 50%;
   margin: 10px;
-  background-color: #cfbc4e;
+  background-color: #4ecfc4;
   color: #fff;
   border: 2px solid #007bff;
   cursor: pointer;
@@ -141,8 +141,6 @@
   opacity: 1;
   visibility: visible;
 }
-
-/* Additional Styles for Popup Content */
 
 .popup-content {
   color: #333;

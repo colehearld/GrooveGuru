@@ -5,14 +5,16 @@ import './styles.css';
 import { useLikesDislikes } from './LikesDislikesContext'; 
 
 export function HomePage() {
-  const [currentSong, setCurrentSong] = useState<SongData | null>(null);
-
   interface SongData {
     photo: string;
     name: string;
     song_name: string;
+    link: string;
+    date : string;
   }
-
+  
+  const [currentSong, setCurrentSong] = useState<SongData | null>(null);
+  
   // Destructuring values from the LikesDislikesContext
   const { likedSongs, dislikedSongs, likeSong, dislikeSong } = useLikesDislikes();
   
@@ -43,7 +45,6 @@ export function HomePage() {
   };
 
   const handleFindGrooveClick = () => {
-    // Make an HTTP request to your backend API
     fetch('http://127.0.0.1:5000')
       .then((response: Response) => {
         if (!response.ok) {
@@ -52,23 +53,28 @@ export function HomePage() {
         return response.json();
       })
       .then(data => {
-        // Check for the presence of 'message'
-        if ('message' in data) {
-          console.log('Message from Flask:', data.message);
+        console.log('Response data:', data);
+        if ('song' in data) {
+          // Extract the relevant properties and set currentSong
+          setCurrentSong({
+            name: data.song.name,
+            link: data.song.song_link,
+            date: data.song.date,
+            photo: data.song.photo,
+            song_name: "Default Song Name" // Set a default value
+          });
+          
+  
+          // Initiate zoom after receiving data
+          setIsZoomed(true);
+        } else {
+          console.log('Invalid data structure:', data);
         }
-  
-        // Handle the data received from the backend
-        console.log('Data from Flask:', data);
-        setCurrentSong(data);
-  
-        // Initiate zoom after receiving data
-        setIsZoomed(true);
       })
       .catch(error => {
         console.error('Error fetching data:', error);
       });
   };
-  
 
   const backgroundStyles: React.CSSProperties = {
     backgroundColor: 'transparent',
@@ -87,7 +93,7 @@ export function HomePage() {
     justifyContent: 'center',
     overflow: 'hidden',
     transition: 'transform 1.25s',
-    transform: isZoomed ? 'scale(4)' : 'scale(1)',
+    transform: isZoomed ? 'scale(2.9)' : 'scale(1)',
   };
 
   // Styles for the user profile button
@@ -114,13 +120,13 @@ export function HomePage() {
   };
 
   // Handles liking a song, calls the corresponding context function, and closes the modal
-  const handleLikeSong = (song: string) => {
+  const handleLikeSong = (song: SongData) => {
     likeSong(song);
     closeModal();
   };
 
   // Handles disliking a song, calls the corresponding context function, and closes the modal
-  const handleDislikeSong = (song: string) => {
+  const handleDislikeSong = (song: SongData) => {
     dislikeSong(song);
     closeModal();
   };
@@ -185,9 +191,20 @@ export function HomePage() {
                 marginBottom: '10px',
               }}
             />
-            <p>{currentSong.name}: {currentSong.song_name}</p>
-            <button onClick={() => handleLikeSong(currentSong.song_name)}>Like</button>
-            <button onClick={() => handleDislikeSong(currentSong.song_name)}>Dislike</button>
+            <p>
+              <strong>Song:</strong> {currentSong.song_name}
+            </p>
+            <p>
+              <strong>Artist(s):</strong> {currentSong.name}
+            </p>
+            <p>
+              <strong>Date:</strong> {currentSong.date}
+            </p>
+            <p>
+              <strong>Link:</strong> {currentSong.link}
+            </p>
+            <button onClick={() => handleLikeSong(currentSong)}>Like</button>
+            <button onClick={() => handleDislikeSong(currentSong)}>Dislike</button>
             <button onClick={closeModal}>Close</button>
           </div>
         </div>

@@ -2,8 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import './roundbutton.css';
 import './UserBackStyles.css';
-import { useLikesDislikes } from './LikesDislikesContext';
-
+import { useLikesDislikes, SongData } from './LikesDislikesContext';
 
 // Interface for representing user preferences for different music genres
 interface MusicGenres {
@@ -17,18 +16,22 @@ interface MusicGenres {
   reggae: boolean;
 }
 
+// Update the type of items to be an array of SongData
+interface LikesDislikesPopupProps {
+  items: SongData[];
+  onRemoveItem: (item: SongData) => void;
+}
 
 // UserProfile component
 const UserProfile: React.FC = () => {
   // Destructuring values from the LikesDislikesContext
   const { likedSongs, dislikedSongs, removeLikedSong, removeDislikedSong } = useLikesDislikes();
 
-
   // State variables
   const [showPopup, setShowPopup] = useState(false);
   const [popupText, setPopupText] = useState('');
-  const [popupItems, setPopupItems] = useState<string[]>([]);
-  const [itemToRemove, setItemToRemove] = useState<string>('');
+  const [popupItems, setPopupItems] = useState<SongData[]>([]);
+  const [itemToRemove, setItemToRemove] = useState<SongData | null>(null);
   const [musicGenres, setMusicGenres] = useState<MusicGenres>({
     pop: false,
     rock: false,
@@ -40,11 +43,9 @@ const UserProfile: React.FC = () => {
     reggae: false,
   });
 
-
   // Animation-related state variables
   const [textPosition, setTextPosition] = useState({ top: 50, left: 50 });
   const [direction, setDirection] = useState({ top: 1, left: 1 });
-
 
   // Styles for the background gradient animation
   const backgroundStyles: React.CSSProperties = {
@@ -64,18 +65,19 @@ const UserProfile: React.FC = () => {
     height: '100vh',
   };
 
-
   // Handles button clicks and sets up the popup based on the button clicked
   const handleButtonClick = (text: string): void => {
     setPopupText(text);
 
-
     switch (text) {
-      case 'Settings':
-        // Handle 'Settings'
-        break;
       case 'Preferences':
-        setPopupItems(Object.keys(musicGenres));
+        setPopupItems(Object.keys(musicGenres).map((genre) => ({
+          photo: '',
+          name: '',
+          song_name: genre,
+          link: '',
+          date: '',
+        })));
         break;
       case 'Likes':
         setPopupItems(likedSongs);
@@ -83,24 +85,19 @@ const UserProfile: React.FC = () => {
       case 'Dislikes':
         setPopupItems(dislikedSongs);
         break;
-      case 'Playlists':
-        // Handle 'Playlists'
-        break;
       default:
         setPopupItems([]);
     }
     setShowPopup(true);
   };
 
-
   // Toggles the state of a music genre in the preferences popup
   const toggleGenre = (genre: keyof MusicGenres): void => {
     setMusicGenres({ ...musicGenres, [genre]: !musicGenres[genre] });
   };
 
-
   // Removes a liked or disliked item
-  const removeItem = (item: string): void => {
+  const removeItem = (item: SongData): void => {
     if (popupText === 'Likes') {
       removeLikedSong(item);
     } else if (popupText === 'Dislikes') {
@@ -108,12 +105,10 @@ const UserProfile: React.FC = () => {
     }
   };
 
-
   // Closes the popup
   const closePopup = (): void => {
     setShowPopup(false);
   };
-
 
   return (
     <div className="gradient-animation" style={{ ...backgroundStyles }}>
@@ -133,8 +128,6 @@ const UserProfile: React.FC = () => {
         >
           Preferences
         </button>
-
-
         <button
           className="round-button dvd-bounce"
           style={{
@@ -149,8 +142,6 @@ const UserProfile: React.FC = () => {
         >
           Likes
         </button>
-
-
         <button
           className="round-button dvd-bounce"
           style={{
@@ -165,8 +156,6 @@ const UserProfile: React.FC = () => {
         >
           Dislikes
         </button>
-
-
         <Link to="/home" style={{ textDecoration: 'none' }}>
           <button
             className="round-button"
@@ -184,7 +173,6 @@ const UserProfile: React.FC = () => {
         </Link>
       </div>
 
-
       <div className={`big-popup ${showPopup ? 'show' : ''}`}>
         <h2>{popupText}</h2>
         {popupText === 'Preferences' && (
@@ -201,54 +189,67 @@ const UserProfile: React.FC = () => {
   );
 };
 
-
 interface PreferencesPopupProps {
-  items: string[];
+  items: SongData[];
   genres: MusicGenres;
   onToggleGenre: (genre: keyof MusicGenres) => void;
 }
 
-
-//Popup sliders
+// Popup sliders
 const PreferencesPopup: React.FC<PreferencesPopupProps> = ({ items, genres, onToggleGenre }) => (
   <ul>
     {items.map((genre) => (
-      <li key={genre} style={{ marginBottom: '10px' }}>
+      <li key={genre.song_name} style={{ marginBottom: '10px' }}>
         <label style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          {genre}
+          {genre.song_name}
           <input
             type="range"
             min="0"
             max="1"
             step="1"
-            value={genres[genre as keyof MusicGenres] ? 1 : 0}
-            onChange={(e) => onToggleGenre(genre as keyof MusicGenres)}
-            style={{ width: '50px' }}  // Adjust the width as needed
+            value={genres[genre.song_name as keyof MusicGenres] ? 1 : 0}
+            onChange={(e) => onToggleGenre(genre.song_name as keyof MusicGenres)}
+            style={{ width: '50px' }}
           />
-          <span>{genres[genre as keyof MusicGenres] ? 'Enabled' : 'Disabled'}</span>
+          <span>{genres[genre.song_name as keyof MusicGenres] ? 'Enabled' : 'Disabled'}</span>
         </label>
       </li>
     ))}
   </ul>
 );
 
-
-interface LikesDislikesPopupProps {
-  items: string[];
-  onRemoveItem: (item: string) => void;
-}
-
-
+// Update the type of items to be an array of SongData
 const LikesDislikesPopup: React.FC<LikesDislikesPopupProps> = ({ items, onRemoveItem }) => (
-  <ul>
-    {items.map((item, index) => (
-      <li key={index}>
-        {item}
-        <button onClick={() => onRemoveItem(item)}>Remove</button>
-      </li>
-    ))}
-  </ul>
+  <div style={{ maxHeight: '400px', overflowY: 'auto' }}>
+    <ul>
+      {items.map((item, index) => (
+        <li key={index}>
+          <div>
+            <strong>Song:</strong> {item.song_name}
+          </div>
+          {item.photo && (
+            <div>
+              <img
+                src={item.photo}
+                alt={`Cover for ${item.song_name}`}
+                style={{ maxWidth: '100px', maxHeight: '100px', marginBottom: '10px' }}
+              />
+            </div>
+          )}
+          <div>
+            <strong>Artist(s):</strong> {item.name}
+          </div>
+          <div>
+            <strong>Date:</strong> {item.date}
+          </div>
+          <div>
+            <strong>Link:</strong> {item.link}
+          </div>
+          <button onClick={() => onRemoveItem(item)}>Remove</button>
+        </li>
+      ))}
+    </ul>
+  </div>
 );
-
 
 export default UserProfile;

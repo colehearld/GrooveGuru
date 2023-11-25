@@ -1,16 +1,25 @@
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 
 // Define the type for the context
-interface LikesDislikesContextType {
-  likedSongs: string[]; 
-  dislikedSongs: string[]; 
-  likeSong: (song: string) => void;
-  dislikeSong: (song: string) => void;
-  removeLikedSong: (song: string) => void; 
-  removeDislikedSong: (song: string) => void;
+export interface LikesDislikesContextType {
+  likedSongs: SongData[]; 
+  dislikedSongs: SongData[]; 
+  likeSong: (song: SongData) => void;
+  dislikeSong: (song: SongData) => void;
+  removeLikedSong: (song: SongData) => void; 
+  removeDislikedSong: (song: SongData) => void;
 }
 
-const LikesDislikesContext = createContext<LikesDislikesContextType | undefined>(undefined);
+export interface SongData {
+  photo: string;
+  name: string;
+  song_name: string;
+  link: string;
+  date: string;
+}
+
+
+export const LikesDislikesContext = createContext<LikesDislikesContextType | undefined>(undefined);
 
 export const useLikesDislikes = (): LikesDislikesContextType => {
   const context = useContext(LikesDislikesContext);
@@ -27,26 +36,78 @@ interface LikesDislikesProviderProps {
 }
 
 export const LikesDislikesProvider: React.FC<LikesDislikesProviderProps> = ({ children }) => {
-  const [likedSongs, setLikedSongs] = useState<string[]>([]);
-  const [dislikedSongs, setDislikedSongs] = useState<string[]>([]);
+  const [likedSongs, setLikedSongs] = useState<SongData[]>([]);
+  const [dislikedSongs, setDislikedSongs] = useState<SongData[]>([]);
 
-  const likeSong = (song: string) => {
+  useEffect(() => {
+    updateBackend(); // Update backend when likedSongs or dislikedSongs change
+  }, [likedSongs, dislikedSongs]);
+
+  const likeSong = (song: SongData) => {
     setLikedSongs([...likedSongs, song]);
   };
 
-  const dislikeSong = (song: string) => {
+  const dislikeSong = (song: SongData) => {
     setDislikedSongs([...dislikedSongs, song]);
   };
 
-  const removeLikedSong = (song: string) => {
-    setLikedSongs(likedSongs.filter((likedSong) => likedSong !== song));
+  const removeLikedSong = (song: SongData) => {
+    setLikedSongs((prevLikedSongs) => {
+      const index = prevLikedSongs.findIndex((s) => s.song_name === song.song_name);
+
+      if (index !== -1) {
+        prevLikedSongs.splice(index, 1);
+        return [...prevLikedSongs];
+      }
+
+      return prevLikedSongs;
+    });
   };
 
-  const removeDislikedSong = (song: string) => {
-    setDislikedSongs(dislikedSongs.filter((dislikedSong) => dislikedSong !== song));
+  const removeDislikedSong = (song: SongData) => {
+    setDislikedSongs((prevDislikedSongs) => {
+      const index = prevDislikedSongs.findIndex((s) => s.song_name === song.song_name);
+
+      if (index !== -1) {
+        prevDislikedSongs.splice(index, 1);
+        return [...prevDislikedSongs];
+      }
+
+      return prevDislikedSongs;
+    });
   };
 
-  // Provide the context value with the appropriate types
+  const updateBackend = () => {
+    const backendEndpoint = 'http://127.0.0.1:5000/api/updateLikesDislikes';
+
+    const requestBody = {
+      likedSongs,
+      dislikedSongs,
+    };
+
+    // Make a POST request to update the backend
+    fetch(backendEndpoint, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(requestBody),
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        return response.json();
+      })
+      .then((data) => {
+        // Handle success response from the backend 
+        console.log('Backend updated successfully:', data);
+      })
+      .catch((error) => {
+        console.error('Error updating backend:', error);
+      });
+  };
+
   const contextValue: LikesDislikesContextType = {
     likedSongs,
     dislikedSongs,
