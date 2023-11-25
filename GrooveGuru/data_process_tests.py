@@ -1,12 +1,12 @@
 import unittest
 from unittest.mock import patch
 from main import app
-from data_processor import process_data, fetch_data
+from data_processor import process_data
 import ast
 
 class TestFlaskApp(unittest.TestCase):
 
-    @patch('app.fetch_data', return_value=[
+    @patch('data_processor.fetch_data', return_value=[
         {'song_link': [{'song_info': 'song_link'}], "song_name": "Song 1", "artists": [{"name": "Artist 1"}],
          "album": {"images": [{"url": "image_url_1"}], "release_date": "2022-01-01"}}])
     def test_index_route(self, mock_fetch_data):
