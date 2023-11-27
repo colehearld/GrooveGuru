@@ -98,13 +98,6 @@ def get_rec_indices(udp, sdp):
         # Load Spotify data
         spotify_data = load_data(sdp)
 
-        '''
-        for song in get_preference(shared_data.disliked_songs):
-            if song in spotify_data:
-                spotify_data = spotify_data[spotify_data['id'] != song]
-                dont recommend song
-        '''
-
         spotify_features = ['acousticness', 'danceability', 'energy', 'instrumentalness', 'liveness', 'loudness',
                             'speechiness', 'tempo', 'valence', 'time_signature', 'key', 'mode']
         X = spotify_data[spotify_features].values
@@ -205,18 +198,24 @@ def init_userdata(udp):
         raise
 
 
-# This function should be used to get likes or dislikes
-# If you would like to retrieve liked songs, use get_preferences(liked_songs) and vice versa
-def get_preference(preference_list):
+def update_liked_songs(likes):
     pattern = r'/track/([a-zA-Z0-9]+)$'
 
-    preferences = []
-    for song in preference_list:
+    for song in likes:
         link = song['link']
         song_id = re.search(pattern, link)
-        preferences.append(song_id)
+        song_data = get_tracks(get_spotify_auth(), song_id)
+        # add song_data to a liked_songs column in userdata.db that does not exist yet
 
-    return preferences
+
+def update_disliked_songs(dislikes):
+    pattern = r'/track/([a-zA-Z0-9]+)$'
+
+    for song in dislikes:
+        link = song['link']
+        song_id = re.search(pattern, link)
+        song_data = get_tracks(get_spotify_auth(), song_id)
+        # add song_data to a disliked_songs column in userdata.db that does not exist yet
 
 
 if __name__ == "__main__":
