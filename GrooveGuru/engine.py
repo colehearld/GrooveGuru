@@ -1,5 +1,8 @@
 import re
+import time
+
 import spotipy
+from spotipy import SpotifyException
 from spotipy.oauth2 import SpotifyOAuth
 import json
 import pandas as pd
@@ -23,16 +26,38 @@ userdata_path = "userdata.db"
 
 def get_spotify_auth():
     scope = 'user-read-recently-played'
-    sp_oauth = SpotifyOAuth(client_id=client_id, client_secret=client_secret, redirect_uri=redirect_uri, scope='user-read-recently-played')
-    token_info = sp_oauth.get_cached_token()
+    sp_oauth = SpotifyOAuth(client_id=client_id, client_secret=client_secret, redirect_uri=redirect_uri, scope=scope)
 
-    if not token_info:
-        auth_url = sp_oauth.get_authorize_url()
-        print(f"Please visit this URL to authorize the application: {auth_url}")
-        response = input("Paste the redirect URL here: ")
+    retry_attempts = 3
+    current_attempt = 1
 
-        token_info = sp_oauth.get_access_token(response)
-    return spotipy.Spotify(auth=token_info['access_token'])
+    while current_attempt <= retry_attempts:
+        try:
+            token_info = sp_oauth.get_cached_token()
+
+            if not token_info:
+                auth_url = sp_oauth.get_authorize_url()
+                print(f"Please visit this URL to authorize the application: {auth_url}")
+                response = input("Paste the redirect URL here: ")
+
+                token_info = sp_oauth.get_access_token(response)
+
+            return spotipy.Spotify(auth=token_info['access_token'])
+
+        except SpotifyException as e:
+            if e.http_status == 429:  # Rate limiting error
+                # Extract the Retry-After header or use a default wait time
+                wait_time = int(e.headers.get('Retry-After', 5))
+                print(f"Rate limit exceeded. Retrying after {wait_time} seconds.")
+                time.sleep(wait_time)
+                current_attempt += 1
+            else:
+                # Log other SpotifyException errors
+                logging.error(f"Spotify API error: {e}")
+                raise
+
+    # If all retry attempts fail, raise an exception
+    raise Exception("Unable to obtain Spotify authentication after multiple attempts.")
 
 
 def get_recent_tracks(sp, n_tracks):
@@ -77,11 +102,15 @@ def get_date_played(tracks):
     return dates_played
 
 
-def get_audio_features(sp, track_ids):
+'''def get_audio_features(sp, track_ids):
     try:
         audio_features = sp.audio_features(tracks=track_ids)
     except Exception as e:
         logging.error(f"Error in get_audio_features {str(e)}")
+    return audio_features'''
+def get_audio_features(sp, track_ids):
+    audio_features = [{'acousticness' : 0.5, 'danceability': 0.5, 'energy': 0.5, 'instrumentalness': 0.5, 'liveness': 0.5, 'loudness': 0.5,
+                            'speechiness': 0.5, 'tempo': 0.5, 'valence': 0.5, 'time_signature': 0.5, 'key': 0.5, 'mode': 0.5}]
     return audio_features
 
 

@@ -4,7 +4,7 @@ import pandas as pd
 import numpy as np
 import engine
 import json
-from engine import get_song_data, sp_login
+from engine import get_song_data, get_spotify_auth
 
 
 class TestSpotifyFunctions(unittest.TestCase):
