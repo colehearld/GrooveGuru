@@ -12,9 +12,10 @@ import sqlite3
 import logging
 from shared_data import liked_songs, disliked_songs
 
-sp_login = spotipy.Spotify(
+# This variable is deprecated for now
+''' sp_login = spotipy.Spotify(
     auth_manager=SpotifyOAuth(client_id=client_id, client_secret=client_secret, redirect_uri=redirect_uri,
-                              scope='user-read-recently-played'))
+                              scope='user-read-recently-played')) '''
 
 spotify_data_path = 'C:/Users/hearl/Downloads/Spotify 600/tracks.csv'  # CHANGE TO YOUR PATH
 userdata_path = "userdata.db"
