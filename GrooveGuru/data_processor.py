@@ -1,6 +1,8 @@
 import ast
 
-from engine import get_song_data, init_userdata, sp_login, spotify_data_path, userdata_path
+from engine import get_song_data, get_spotify_auth, spotify_data_path, userdata_path
+
+var = (), spotify_data_path, userdata_path
 
 
 def fetch_and_process_data():
@@ -9,7 +11,7 @@ def fetch_and_process_data():
 
 
 def fetch_data():
-    return get_song_data(sp_login, init_userdata(userdata_path), spotify_data_path)
+    return get_song_data(get_spotify_auth(), userdata_path, spotify_data_path)
 
 
 def process_data(data_list):

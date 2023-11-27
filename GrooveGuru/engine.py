@@ -1,12 +1,16 @@
+import re
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth
 import json
 import pandas as pd
 import numpy as np
 from sklearn.neighbors import NearestNeighbors
+
+from GrooveGuru import shared_data
 from credentials import client_id, client_secret, redirect_uri
 import sqlite3
 import logging
+from shared_data import liked_songs, disliked_songs
 
 sp_login = spotipy.Spotify(
     auth_manager=SpotifyOAuth(client_id=client_id, client_secret=client_secret, redirect_uri=redirect_uri,
@@ -14,6 +18,20 @@ sp_login = spotipy.Spotify(
 
 spotify_data_path = 'C:/Users/hearl/Downloads/Spotify 600/tracks.csv'  # CHANGE TO YOUR PATH
 userdata_path = "userdata.db"
+
+
+def get_spotify_auth():
+    scope = 'user-read-recently-played'
+    sp_oauth = SpotifyOAuth(client_id=client_id, client_secret=client_secret, redirect_uri=redirect_uri, scope='user-read-recently-played')
+    token_info = sp_oauth.get_cached_token()
+
+    if not token_info:
+        auth_url = sp_oauth.get_authorize_url()
+        print(f"Please visit this URL to authorize the application: {auth_url}")
+        response = input("Paste the redirect URL here: ")
+
+        token_info = sp_oauth.get_access_token(response)
+    return spotipy.Spotify(auth=token_info['access_token'])
 
 
 def get_recent_tracks(sp, n_tracks):
@@ -80,6 +98,13 @@ def get_rec_indices(udp, sdp):
         # Load Spotify data
         spotify_data = load_data(sdp)
 
+        '''
+        for song in get_preference(shared_data.disliked_songs):
+            if song in spotify_data:
+                spotify_data = spotify_data[spotify_data['id'] != song]
+                dont recommend song
+        '''
+
         spotify_features = ['acousticness', 'danceability', 'energy', 'instrumentalness', 'liveness', 'loudness',
                             'speechiness', 'tempo', 'valence', 'time_signature', 'key', 'mode']
         X = spotify_data[spotify_features].values
@@ -119,6 +144,7 @@ def get_rec_indices(udp, sdp):
 
 def get_song_data(sp, udp, sdp):
     try:
+        udp = init_userdata(udp)
         indices, spotifydata = get_rec_indices(udp, sdp)
 
         # get the names and ids of the closest indices
@@ -138,7 +164,7 @@ def get_song_data(sp, udp, sdp):
 
 def init_userdata(udp):
     try:
-        all_tracks, dates_played = get_recent_tracks(sp_login, 20)
+        all_tracks, dates_played = get_recent_tracks(get_spotify_auth(), 20)
         song_data_list = []
 
         conn = sqlite3.connect(udp)
@@ -152,7 +178,7 @@ def init_userdata(udp):
         ''')
 
         for track_id in all_tracks:
-            audio_features = get_audio_features(sp_login, [track_id])[0]
+            audio_features = get_audio_features(get_spotify_auth(), [track_id])[0]
 
             cursor.execute('''
                 INSERT OR IGNORE INTO tracks (id, audio_features)
@@ -179,6 +205,20 @@ def init_userdata(udp):
         raise
 
 
+# This function should be used to get likes or dislikes
+# If you would like to retrieve liked songs, use get_preferences(liked_songs) and vice versa
+def get_preference(preference_list):
+    pattern = r'/track/([a-zA-Z0-9]+)$'
+
+    preferences = []
+    for song in preference_list:
+        link = song['link']
+        song_id = re.search(pattern, link)
+        preferences.append(song_id)
+
+    return preferences
+
+
 if __name__ == "__main__":
-    print(get_song_data(sp_login, init_userdata(userdata_path), spotify_data_path))
+    print(get_song_data(get_spotify_auth(), userdata_path, spotify_data_path))
 
