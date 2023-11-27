@@ -1,6 +1,12 @@
 # GrooveGuru README
 
+## What is GrooveGuru?
+
+GrooveGuru is a web application that recommends songs to a user based on their listening history on spotify. Recommendations are primarily determined by how the song *sounds*. The program does this by gathering metrics about the song from spotify and comparing them to a dataset of 600,000 different tracks using the k-nearest-neighbor algorithm. Users can then choose to like or dislike the recommendation to create greater accuracy for future recommendations. 
+
 ## Setup Instructions
+
+**Note: In order to use GrooveGuru you MUST have a spotify account and be logged in on the browser**
 
 ### Step 1: Update Spotify Dataset Path
 In order to run GrooveGuru successfully, you need to configure the local path to the Spotify dataset. Navigate to `engine.py` and locate the `spotify_data_path` variable. Update its value with the path to your local dataset.
