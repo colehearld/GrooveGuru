@@ -66,7 +66,7 @@ export function HomePage() {
             link: data.song.song_link,
             date: data.song.date,
             photo: data.song.photo,
-            song_name: "Default Song Name" // Set a default value
+            song_name: data.song.song_name
           });
           
           setIsSearching(false);
