@@ -14,7 +14,7 @@ import sqlite3
 import logging
 from shared_data import liked_songs, disliked_songs
 
-spotify_data_path = 'C:/Users/hearl/Downloads/Spotify 600/tracks.csv'  # CHANGE TO YOUR PATH
+spotify_data_path = 'PATH/TO/SPOTIFY/DATASET'
 userdata_path = "userdata.db"
 
 
@@ -96,7 +96,7 @@ def get_date_played(tracks):
     return dates_played
 
 
-# Use for testing or if the other get_audio_features is not working
+# Use for testing if the other get_audio_features returns error code 429
 '''
 def get_audio_features(sp, track_ids):
     audio_features = [
@@ -105,6 +105,7 @@ def get_audio_features(sp, track_ids):
          'key': 0.5, 'mode': 0.5}]
     return audio_features
 '''
+
 
 def get_audio_features(sp, track_ids):
     try:

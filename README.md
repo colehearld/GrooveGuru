@@ -8,12 +8,20 @@ GrooveGuru is a web application that recommends songs to a user based on their l
 
 **Note: In order to use GrooveGuru you MUST have a spotify account and be logged in on the browser**
 
-### Step 1: Update Spotify Dataset Path
+### Step 1: Update Spotify Dataset Path and Credentials.py
 In order to run GrooveGuru successfully, you need to configure the local path to the Spotify dataset. Navigate to `engine.py` and locate the `spotify_data_path` variable. Update its value with the path to your local dataset. The dataset can be found [here](https://www.kaggle.com/datasets/yamaerenay/spotify-dataset-19212020-600k-tracks)
 
 ```python
 # engine.py
 spotify_data_path = "path/to/your/local/dataset"
+```
+
+Next set the credentials in `credentials.py`. In order to retrieve these credentials, you must use the Spotify API to create a project and then retrieve them from settings. The localhost is set to a default address that you can add when creating the project on Spotify
+```python
+#credentials.py
+client_id = "YOUR_CLIENT_ID"
+client_secret = "YOUR_SECRET"
+redirect_uri = "https://localhost:8087"
 ```
 ### Step 2: Run the Main Program
 Execute the main program by running main.py
