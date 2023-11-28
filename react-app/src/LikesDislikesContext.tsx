@@ -18,7 +18,6 @@ export interface SongData {
   date: string;
 }
 
-
 export const LikesDislikesContext = createContext<LikesDislikesContextType | undefined>(undefined);
 
 export const useLikesDislikes = (): LikesDislikesContextType => {
@@ -119,7 +118,74 @@ export const LikesDislikesProvider: React.FC<LikesDislikesProviderProps> = ({ ch
 
   return (
     <LikesDislikesContext.Provider value={contextValue}>
+      {/* Include the new component */}
+      <LikedDislikedSongsComponent />
       {children}
     </LikesDislikesContext.Provider>
   );
 };
+
+// New Component
+const LikedDislikedSongsComponent: React.FC = () => {
+  const { likedSongs, dislikedSongs } = useLikesDislikes();
+
+  useEffect(() => {
+    // Fetch liked and disliked songs from the backend when the component mounts
+    fetchLikesDislikesFromBackend();
+  }, []);
+
+  const fetchLikesDislikesFromBackend = () => {
+    // Make a GET request to the backend to fetch liked and disliked songs
+    fetch('http://127.0.0.1:5000/api/updateLikesDislikes')
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        return response.json();
+      })
+      .then((data) => {
+        if (data.likedSongs) {
+          console.log('Liked Songs from Backend:', data.likedSongs);
+        } else {
+          console.log('No Liked Songs from Backend');
+        }
+
+        if (data.dislikedSongs) {
+          console.log('Disliked Songs from Backend:', data.dislikedSongs);
+        } else {
+          console.log('No Disliked Songs from Backend');
+        }
+      })
+      .catch((error) => {
+        console.error('Error fetching likes and dislikes from backend:', error);
+      });
+  };
+
+  return (
+    <div>
+      <h2>Liked Songs</h2>
+      {likedSongs.length > 0 ? (
+        <ul>
+          {likedSongs.map((song, index) => (
+            <li key={index}>{song.song_name}</li>
+          ))}
+        </ul>
+      ) : (
+        <p>No liked songs.</p>
+      )}
+
+      <h2>Disliked Songs</h2>
+      {dislikedSongs.length > 0 ? (
+        <ul>
+          {dislikedSongs.map((song, index) => (
+            <li key={index}>{song.song_name}</li>
+          ))}
+        </ul>
+      ) : (
+        <p>No disliked songs.</p>
+      )}
+    </div>
+  );
+};
+
+export default LikedDislikedSongsComponent;
