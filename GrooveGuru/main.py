@@ -1,10 +1,8 @@
 from flask import Flask, jsonify, request
 from flask_cors import CORS
 
-from GrooveGuru import shared_data
 from data_processor import fetch_data, process_data
-from engine import update_liked_songs, update_disliked_songs, get_song_data, get_spotify_auth, userdata_path, \
-    spotify_data_path
+from engine import update_liked_songs, update_disliked_songs
 
 app = Flask(__name__)
 CORS(app)
@@ -50,8 +48,8 @@ def update_likes_dislikes():
 
     try:
         data = request.json
-        likes = shared_data.liked_songs = data.get('likedSongs', [])
-        dislikes = shared_data.disliked_songs = data.get('dislikedSongs', [])
+        likes = data.get('likedSongs', [])
+        dislikes = data.get('dislikedSongs', [])
         response = {'status': 'success', 'message': 'Likes and dislikes updated successfully.'}
         print('Received liked songs:', likes)
         print('Received disliked songs:', dislikes)
@@ -61,7 +59,6 @@ def update_likes_dislikes():
 
     except Exception as e:
         response = {'status': 'error', 'message': str(e)}
-
 
     return jsonify(response)
 

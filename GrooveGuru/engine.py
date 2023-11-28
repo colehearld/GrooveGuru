@@ -96,10 +96,21 @@ def get_date_played(tracks):
     return dates_played
 
 
+# Use for testing or if the other get_audio_features is not working
+'''
 def get_audio_features(sp, track_ids):
-    audio_features = [{'acousticness': 0.5, 'danceability': 0.5, 'energy': 0.5, 'instrumentalness': 0.5, 'liveness': 0.5,
-                        'loudness': 0.5, 'speechiness': 0.5, 'tempo': 0.5, 'valence': 0.5, 'time_signature': 0.5,
-                        'key': 0.5, 'mode': 0.5}]
+    audio_features = [
+        {'acousticness': 0.5, 'danceability': 0.5, 'energy': 0.5, 'instrumentalness': 0.5, 'liveness': 0.5,
+         'loudness': 0.5, 'speechiness': 0.5, 'tempo': 0.5, 'valence': 0.5, 'time_signature': 0.5,
+         'key': 0.5, 'mode': 0.5}]
+    return audio_features
+'''
+
+def get_audio_features(sp, track_ids):
+    try:
+        audio_features = sp.audio_features(tracks=track_ids)
+    except Exception as e:
+        logging.error(f"Error in get_audio_features {str(e)}")
     return audio_features
 
 
@@ -236,7 +247,7 @@ def get_rec_indices(udp, sdp):
         # Load Spotify data
         spotify_data = load_data(sdp)
         spotify_features = ['acousticness', 'danceability', 'energy', 'instrumentalness', 'liveness', 'loudness',
-                             'speechiness', 'tempo', 'valence', 'time_signature', 'key', 'mode']
+                            'speechiness', 'tempo', 'valence', 'time_signature', 'key', 'mode']
         X = spotify_data[spotify_features].values
 
         # Extract audio features from user data
@@ -248,7 +259,8 @@ def get_rec_indices(udp, sdp):
 
         if liked_songs_data:
             liked_songs_data = [{'audio_features': json.loads(row[0])} for row in liked_songs_data]
-            Y = np.concatenate([Y, np.array([[track['audio_features'][feature] for feature in spotify_features] for track in liked_songs_data])])
+            Y = np.concatenate([Y, np.array(
+                [[track['audio_features'][feature] for feature in spotify_features] for track in liked_songs_data])])
 
         mean_features = np.mean(Y, axis=0, keepdims=True)
 
@@ -276,7 +288,7 @@ def get_song_data(sp, udp, sdp):
         indices, spotifydata = get_rec_indices(udp, sdp)
 
         recommended_songs_id_name = [(spotifydata.iloc[neighbor_index]['id'], spotifydata.iloc[neighbor_index]['name'])
-                                      for neighbor_index in indices.flatten()]
+                                     for neighbor_index in indices.flatten()]
 
         recommendations = []
 
@@ -292,7 +304,8 @@ def get_song_data(sp, udp, sdp):
             disliked_song = cursor.fetchone()
 
             if liked_song or disliked_song:
-                print(f"The recommendation '{name}' with ID {id} is already liked or disliked. Choosing another recommendation.")
+                print(
+                    f"The recommendation '{name}' with ID {id} is already liked or disliked. Choosing another recommendation.")
                 continue
 
             rec_song_data = get_tracks(sp, str(id))

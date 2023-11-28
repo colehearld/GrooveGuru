@@ -2,7 +2,6 @@ import unittest
 from unittest.mock import patch
 from main import app
 from data_processor import process_data
-import ast
 
 class TestFlaskApp(unittest.TestCase):
 
