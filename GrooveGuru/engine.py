@@ -223,7 +223,11 @@ def get_rec_indices(udp, sdp):
         cursor = conn.cursor()
 
         # Fetch audio features for tracks that are not disliked and not liked
-        cursor.execute('SELECT audio_features FROM tracks WHERE id NOT IN (SELECT id FROM disliked_songs) AND id NOT IN (SELECT id FROM liked_songs)')
+        cursor.execute('''
+            SELECT audio_features 
+            FROM tracks 
+            WHERE id NOT IN (SELECT id FROM disliked_songs) AND id NOT IN (SELECT id FROM liked_songs)
+        ''')
         user_data = cursor.fetchall()
 
         # Convert fetched data to a list of dictionaries
@@ -237,6 +241,14 @@ def get_rec_indices(udp, sdp):
 
         # Extract audio features from user data
         Y = np.array([[track['audio_features'][feature] for feature in spotify_features] for track in user_data])
+
+        # Consider liked songs in the recommendation algorithm
+        cursor.execute('SELECT audio_features FROM tracks WHERE id IN (SELECT id FROM liked_songs)')
+        liked_songs_data = cursor.fetchall()
+
+        if liked_songs_data:
+            liked_songs_data = [{'audio_features': json.loads(row[0])} for row in liked_songs_data]
+            Y = np.concatenate([Y, np.array([[track['audio_features'][feature] for feature in spotify_features] for track in liked_songs_data])])
 
         mean_features = np.mean(Y, axis=0, keepdims=True)
 
@@ -267,11 +279,28 @@ def get_song_data(sp, udp, sdp):
                                       for neighbor_index in indices.flatten()]
 
         recommendations = []
+
+        conn = sqlite3.connect(udp)
+        cursor = conn.cursor()
+
         for id, name in recommended_songs_id_name:
+            # Check if the recommendation is liked or disliked
+            cursor.execute('SELECT id FROM liked_songs WHERE id = ?', (str(id),))
+            liked_song = cursor.fetchone()
+
+            cursor.execute('SELECT id FROM disliked_songs WHERE id = ?', (str(id),))
+            disliked_song = cursor.fetchone()
+
+            if liked_song or disliked_song:
+                print(f"The recommendation '{name}' with ID {id} is already liked or disliked. Choosing another recommendation.")
+                continue
+
             rec_song_data = get_tracks(sp, str(id))
             rec_song_data['song_name'] = name
             rec_song_data_str = rec_song_data.__str__()
             recommendations.append(rec_song_data_str)
+
+        conn.close()
 
     except Exception as e:
         logging.error(f"Error in get_song_data {str(e)}")
