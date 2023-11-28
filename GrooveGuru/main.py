@@ -3,6 +3,8 @@ from flask_cors import CORS
 
 from GrooveGuru import shared_data
 from data_processor import fetch_data, process_data
+from engine import update_liked_songs, update_disliked_songs, get_song_data, get_spotify_auth, userdata_path, \
+    spotify_data_path
 
 app = Flask(__name__)
 CORS(app)
@@ -53,8 +55,13 @@ def update_likes_dislikes():
         response = {'status': 'success', 'message': 'Likes and dislikes updated successfully.'}
         print('Received liked songs:', likes)
         print('Received disliked songs:', dislikes)
+
+        update_liked_songs(likes)
+        update_disliked_songs(dislikes)
+
     except Exception as e:
         response = {'status': 'error', 'message': str(e)}
+
 
     return jsonify(response)
 
