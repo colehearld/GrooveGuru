@@ -11,28 +11,66 @@
   font-family: 'Roboto', sans-serif;
   font-weight: bold;
   font-size: 4em; 
-  color: rgb(228, 178, 41); 
+  color: #ffe600; 
   text-shadow: 4px 4px 2px rgba(0, 0, 0, 0.8);
   animation: dvdLogoEffect 20s infinite linear;
+}
+
+.dvd-logo-effect_1 {
+  font-family: 'Roboto', sans-serif;
+  font-weight: bold;
+  font-size: 4em; 
+  color: #ffe600; 
+  text-shadow: 4px 4px 2px rgba(0, 0, 0, 0.8);
+  animation: dvdLogoEffect_1 20s infinite linear;
 }
 
 @keyframes dvdLogoEffect {
   0% {
     transform: translateX(-550px) translateY(-550px);
+    color: #ff8a00; 
   }
   25% {
     transform: translateX(550px) translateY(550px);
+    color: #ff4377; 
   }
   50% {
     transform: translateX(550px) translateY(-550px);
+    color: #da1b60;
   }
   75% {
     transform: translateX(-550px) translateY(550px);
+    color: #9d1be4; 
   }
   100% {
     transform: translateX(-550px) translateY(-550px);
+    color: #ff8a00; 
   }
 }
+
+@keyframes dvdLogoEffect_1 {
+  0% {
+    transform: translateX(550px) translateY(550px);
+    color: #ff4377; 
+  }
+  25% {
+    transform: translateX(-550px) translateY(-550px);
+    color: #da1b60; 
+  }
+  50% {
+    transform: translateX(-550px) translateY(550px);
+    color: #9d1be4; 
+  }
+  75% {
+    transform: translateX(550px) translateY(-550px);
+    color: #ff8a00; 
+  }
+  100% {
+    transform: translateX(550px) translateY(550px);
+    color: #ff4377; 
+  }
+}
+
 
 @keyframes scaleAnimation {
   

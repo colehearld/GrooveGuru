@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import {useNavigate } from 'react-router-dom';
 import './roundbutton.css';
 import './styles.css';
 import { useLikesDislikes } from './LikesDislikesContext'; 
@@ -16,7 +16,7 @@ export function HomePage() {
   const [currentSong, setCurrentSong] = useState<SongData | null>(null);
   
   // Destructuring values from the LikesDislikesContext
-  const { likedSongs, dislikedSongs, likeSong, dislikeSong } = useLikesDislikes();
+  const {likeSong, dislikeSong } = useLikesDislikes();
   
   // State variables
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -44,7 +44,12 @@ export function HomePage() {
     }
   };
 
+  const [isSearching, setIsSearching] = useState(false);
+
+
   const handleFindGrooveClick = () => {
+    setIsSearching(true);
+
     fetch('http://127.0.0.1:5000')
       .then((response: Response) => {
         if (!response.ok) {
@@ -64,7 +69,7 @@ export function HomePage() {
             song_name: "Default Song Name" // Set a default value
           });
           
-  
+          setIsSearching(false);
           // Initiate zoom after receiving data
           setIsZoomed(true);
         } else {
@@ -73,6 +78,7 @@ export function HomePage() {
       })
       .catch(error => {
         console.error('Error fetching data:', error);
+        setIsSearching(false);
       });
   };
 
@@ -140,7 +146,7 @@ export function HomePage() {
       >
         User Profile
       </button>
-      <h1 style={{ ...grooveGuruStyles, color: 'purple' }}>Groove</h1>
+      <h1 style={{ ...grooveGuruStyles, color: '#9d1be4' }}>Groove</h1>
       <h1 style={{ ...grooveGuruStyles, color: 'yellow' }}>Guru</h1>
       <div
         style={{
@@ -151,13 +157,13 @@ export function HomePage() {
           justifyContent: 'center',
         }}
       >
-        <button
-          onClick={handleFindGrooveClick}
-          className="round-button"
-          style={{ fontSize: '4em', padding: '20px', width: '650px', height: '650px' }}
-        >
-          FIND ME THE GROOVE
-        </button>
+      <button
+        onClick={handleFindGrooveClick}
+        className={`round-button ${isSearching ? 'searching' : ''}`}
+        style={{ fontSize: '4em', padding: '20px', width: '650px', height: '650px' }}
+      >
+        {isSearching ? 'SEARCHING FOR GROOVE...' : 'FIND ME THE GROOVE'}
+      </button>
       </div>
       {isModalOpen && currentSong && (
         <div

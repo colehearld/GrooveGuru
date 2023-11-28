@@ -7,7 +7,18 @@
     opacity: 0.5;
   }
   100% {
-    transform: scale(4);
+    transform: scale(3);
+    opacity: 0;
+  }
+}
+
+@keyframes loading-pulse {
+  0% {
+    transform: scale(1);
+    opacity: 0.7;
+  }
+  100% {
+    transform: scale(6);
     opacity: 0;
   }
 }
@@ -15,11 +26,11 @@
 @keyframes beatWithColorPulse {
   0%, 100% {
     transform: translateY(0);
-    background-color: #cfbc4e;
+    background-color: #cf4e4e;
   }
   50% {
     transform: translateY(-10px);
-    background-color: #cfbc4e;
+    background-color: #754ecf;
   }
 }
 
@@ -59,13 +70,13 @@
   height: 110px;
   border-radius: 50%;
   margin: 10px;
-  background-color: #4ecfc4;
-  color: #fff;
-  border: 2px solid #007bff;
+  background-color: #cf4ebe;
+  color: #ffe600;
+  border: 2px solid #ffe600;
   cursor: pointer;
   font-size: 16px;
   transition: transform 0.3s ease-in-out, width 0.3s, height 0.3s;
-  animation: beatWithColorPulse 1s infinite, beatWithBoxShadow 1s infinite;
+  animation: beatWithColorPulse 1.75s infinite, beatWithBoxShadow 1.75s infinite;
 
 }
 
@@ -75,8 +86,8 @@
   width: 100%;
   height: 100%;
   border-radius: 50%;
-  background-color: #cfbc4e;
-  animation: pulse 2s infinite;
+  background-color: #ffe600;
+  animation: pulse 1.75s infinite;
   transform-origin: center;
   top: 0;
   left: 0;
@@ -84,7 +95,7 @@
 }
 
 .round-button:hover {
-  transform: scale(1.1);
+  transform: scale(1.15);
   animation: none;
 }
 
@@ -189,5 +200,19 @@
 .big-popup.show {
   opacity: 1;
   visibility: visible;
-  animation: slideIn 0.5s ease-out; /* Adjust the animation duration and easing as needed */
+  animation: slideIn 0.5s ease-out;
+}
+
+.round-button.searching::before {
+  content: '';
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background-color: #f0efee;
+  animation: loading-pulse 1.75s infinite;
+  transform-origin: center;
+  top: 0;
+  left: 0;
+  pointer-events: none;
 }
